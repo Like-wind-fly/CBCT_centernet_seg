@@ -1,0 +1,63 @@
+data:
+    dataset_type: "CBCT_SGA"
+    dataset_directory: "/home/yisiinfo/cyj/cj/segmentation_teeth_3d/CBCT_data2/splitGroup.pt"
+    input_dims: 3
+    train_crop_size: [160,160,160]
+
+network:
+    type: SGA
+    with_dropout: false
+    cuda: "0"
+
+3dunet:
+    town:
+        #输出features的维度
+        features: 4
+
+    Unet:
+        num_input_channels : 1
+        first_layer_channels: 16
+        ndims : 3
+        steps: 4
+        blockNum: 2
+
+attentionUNet:
+    town:
+        #输出features的维度
+        features: 8
+
+    Unet:
+        num_input_channels: 1
+        first_layer_channels: 16
+        ndims: 3
+        steps: 4
+        blockNum: 2
+
+loss:
+    type:
+#        - tm_SGA_loss
+        - tm_quad_loss
+    weights: [1.0,1]
+
+metrics:
+    - SGA_dsc
+    - SGA_evaluate_mesh
+
+training:
+    epochs: 3000
+    save_frequency: 10
+    batch_size: 1
+    aggregate: 4
+    optimizer: Adam
+    momentum: 0.9
+    lr: 0.001
+
+    scheduler: lr_scheduler
+    T_max: 10
+
+validation:
+    frequency: 10
+    batch_size: 1
+
+testing:
+    batch_size: 1

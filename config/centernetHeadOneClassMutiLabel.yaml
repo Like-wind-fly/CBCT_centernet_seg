@@ -1,0 +1,69 @@
+data:
+    #数据类型
+    dataset_type: "CBCT"
+    dataset_directory: "/home/zhangzechu/workspace/data/CBCT/ALLCBCT/splitGroup.pt"
+    input_dims: 3
+    kernel_size: 5
+    sigma: 0.8
+    classNum: 1
+    labelNum: 32
+    train_crop_size: [128,128,160]
+
+network:
+    type: centerNetHead
+    with_dropout: false
+    cuda: "1"
+
+town:
+    # used_layer 被用来生成heatmap等结果的Unet输出，Unet可以输出多分辨率的特征图
+    #一般来说，layer 0，特征图大小与原图一致， layer i 缩放 2**i 倍
+    used_layer: 2
+    blockNum: 3
+    #输出features的维度
+    features: 64
+
+Unet:
+    num_input_channels : 1
+    first_layer_channels: 16
+    ndims : 3
+    steps: 4
+    blockNum: 2
+
+head:
+    heatmap: true
+    reg: true
+    dwh: true
+    classify: true
+
+
+loss:
+    type:
+        - heatmap_loss
+        - offset_loss
+        - size_loss
+        - class_ce_loss
+        - heatmap32_loss
+    weights: [1.0, 1.0 ,0.1, 5.0, 1.0]
+
+
+metrics:
+    - detection_metrics
+
+training:
+    epochs: 3000
+    save_frequency: 10
+    batch_size: 2
+    aggregate: 4
+    optimizer: Adam
+    momentum: 0.9
+    lr: 0.00003
+
+    scheduler: lr_scheduler
+    T_max: 10
+
+validation:
+    frequency: 10
+    batch_size: 1
+
+testing:
+    batch_size: 1
