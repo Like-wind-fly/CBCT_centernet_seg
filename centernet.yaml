@@ -1,0 +1,65 @@
+data:
+    #数据类型
+    dataset_type: "CBCT"
+    dataset_directory: "/home/yisiinfo/cyj/cj/Tooth-and-alveolar-bone-segmentation-from-CBCT/NC-release-data/NC-release-data-checked/cbct_splitGroup.pt"
+    input_dims: 3
+    kernel_size: 5
+    sigma: 0.8
+    classNum: 1
+    train_crop_size: [128,160,160]
+
+network:
+    type: centerNet
+    with_dropout: false
+    cuda: "0"
+
+town:
+    # used_layer 被用来生成heatmap等结果的Unet输出，Unet可以输出多分辨率的特征图
+    #一般来说，layer 0，特征图大小与原图一致， layer i 缩放 2**i 倍
+    used_layer: 2
+    blockNum: 3
+    #输出features的维度
+    features: 8
+
+Unet:
+    num_input_channels : 1
+    first_layer_channels: 16
+    ndims : 3
+    steps: 4
+    blockNum: 2
+
+head:
+    heatmap: true
+    reg: true
+    dwh: true
+
+
+loss:
+    type:
+        - heatmap_loss
+        - offset_loss
+        - size_loss
+    weights: [1.0, 1.0 ,0.1]
+
+
+metrics:
+    - detection_metrics
+
+training:
+    epochs: 3000
+    save_frequency: 30
+    batch_size: 1
+    aggregate: 4
+    optimizer: Adam
+    momentum: 0.9
+    lr: 0.00004
+
+    scheduler: lr_scheduler
+    T_max: 10
+
+validation:
+    frequency: 10
+    batch_size: 2
+
+testing:
+    batch_size: 1
